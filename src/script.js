@@ -77,6 +77,8 @@ const customUniforms = {
   uTime: { value: 0 },
 };
 
+// -------------------------------material - Before compile----------------
+
 material.onBeforeCompile = (shader) => {
   shader.uniforms.uTime = customUniforms.uTime;
 
@@ -94,11 +96,20 @@ material.onBeforeCompile = (shader) => {
         `
   );
   shader.vertexShader = shader.vertexShader.replace(
+    "#include <beginnormal_vertex>",
+    `
+    #include <beginnormal_vertex>
+    float angle = (cos(sin(position.y + uTime))) *0.4 ;
+
+        mat2 rotateMatrix = get2dRotateMatrix(angle);
+
+        objectNormal.xz =   rotateMatrix * objectNormal.xz ;
+    `
+  );
+  shader.vertexShader = shader.vertexShader.replace(
     "#include <begin_vertex>",
     `
         #include <begin_vertex>
-        float angle = (position.y + uTime) *0.9;
-        mat2 rotateMatrix = get2dRotateMatrix(angle);
 
         transformed.xz =   rotateMatrix * transformed.xz ;
         
@@ -106,7 +117,7 @@ material.onBeforeCompile = (shader) => {
   );
 };
 
-// ============depth Material==================
+//                   ============depth Material==================
 depthMaterial.onBeforeCompile = (shader) => {
   shader.uniforms.uTime = customUniforms.uTime;
 
@@ -127,9 +138,9 @@ depthMaterial.onBeforeCompile = (shader) => {
     "#include <begin_vertex>",
     `
             #include <begin_vertex>
-            float angle = (position.y + uTime) *0.9;
-            mat2 rotateMatrix = get2dRotateMatrix(angle);
-    
+            float angle = (cos(sin(position.y + uTime))) *0.4 ;
+
+            mat2 rotateMatrix = get2dRotateMatrix(angle);    
             transformed.xz =   rotateMatrix * transformed.xz ;
             
         `
